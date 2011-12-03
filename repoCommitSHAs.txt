@@ -1,0 +1,34 @@
+Test Git on MacBook
+250d0fccda2e81417160aaba2485f58436763a6e
+Added user following
+6f6dd278a99ab66125b067b614942c7e1450a42d
+Added user microposts
+9cc81226f14200abd076e3b3f5c746cf63381aa0
+Modified Gemfile with faker
+8b08ccd519fc2da8227c0132f9ff37dc3eb449e3
+Done with user edit/update, index and destroy actions
+aeccf1e6c7956586a5cad1b52f8dd69456c48c7e
+Done with sign in
+8e98514c80b044044fbd840646753655fa457d14
+User signup complete
+7a305e19a310703eb3b0a17897b0fca19423ec93
+User model with passwords, and user show page
+8581655a36555053d4aa263ea5936b8d55930133
+Finished first cut of the User model
+f789709002ede6200695c746b4a6999b4a825e57
+Finished layout and routes
+f667ac94b37fc4cb979867c5d5be66a16fa6a41c
+Imported blueprint CSS framework
+696241f56c9025087b7eaa2674c7fcda85f82868
+Merge branch 'static-pages'
+9bd734ece9b970ed53a3dc64e1e57d7d72df5318
+Done with static pages
+8742628357b9f339ec37b44a5fcb212cb9fca669
+Added a hello.html file for test
+bc56b2b004af0c6554c50cfba9a8577ddb8c6ff3
+Added a Pages controller
+94497c7d2f04b748ce663a847ccdd2d7299ab34d
+Improved the README
+dd008e090927c68ac264711c938c1f1f5a7f434f
+first commit
+8159c1ede45c911c612990e4bee3b27b8c70a483
