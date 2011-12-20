@@ -7,39 +7,23 @@
 
 package edu.stevens.cs.cs581.githubapp;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.eclipse.egit.github.core.Blob;
 import org.eclipse.egit.github.core.Commit;
 import org.eclipse.egit.github.core.Contributor;
-import org.eclipse.egit.github.core.Language;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryCommit;
-import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.SearchRepository;
-import org.eclipse.egit.github.core.Tag;
-import org.eclipse.egit.github.core.Tree;
-import org.eclipse.egit.github.core.TreeEntry;
 import org.eclipse.egit.github.core.User;
 import org.eclipse.egit.github.core.client.GitHubClient;
-import org.eclipse.egit.github.core.client.GitHubRequest;
 import org.eclipse.egit.github.core.client.IGitHubConstants;
+import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.RepositoryService;
-import org.eclipse.egit.github.core.service.WatcherService;
-import java.lang.System;
-import org.eclipse.egit.github.core.service.*;
+import org.eclipse.egit.github.core.service.UserService;
 
 public class Main {
 	
@@ -71,11 +55,12 @@ public class Main {
 	    for ( String l : langArray)
 	    {	
 		    List<SearchRepository> repositories = rs.searchRepositories(l,l);
-		    System.out.println("Language : " + l);
+		    //System.out.println("Language : " + l);
 		    for ( SearchRepository s : repositories)
 		    {	
 		    	watcherCount += s.getWatchers();
-		    	System.out.println( "Repository name : " + s.getName() + ".  \nThe number of watchers : " + s.getWatchers());
+		    	//System.out.println( "Repository name : " + s.getName() + ".  \nThe number of watchers : " + s.getWatchers());
+		    	System.out.println(s.getWatchers());
 		    	repositoryCount++;
 		    }
 		    languageCount++;
@@ -98,12 +83,13 @@ public class Main {
 	    for ( String l : langArray)
 	    {	
 		    List<SearchRepository> repositories = rs.searchRepositories(l,l);
-		    System.out.println("Language : " + l);
+		    //System.out.println("Language : " + l);
 		    
 		    for ( SearchRepository s : repositories)
 		    {	
 		    	forkCount += s.getForks();
-		    	System.out.println("Repository name : " + s.getName() + ".  \nThe number of forks : " + s.getForks());
+		    	//System.out.println("Repository name : " + s.getName() + ".  \nThe number of forks : " + s.getForks());
+		    	System.out.println(s.getForks());
 		    	repositoryCount++;
 		    }
 		    languageCount++;
@@ -121,6 +107,8 @@ public class Main {
 	{
 		int languageCount = 0;
 		int repositoryCount = 0;
+		
+		//
 		HashMap<String, Integer> repositoryContributors = new HashMap<String, Integer>();
 
 		// For each language, print out the relevant repositories(less than 100).
@@ -220,6 +208,7 @@ public class Main {
 		    for ( SearchRepository s : repositories)
 		    {	
 		    	repositoryCount++;
+		    	//bug??
 		    	List<Contributor> contributors = rs.getContributors(s, false);
 		    	System.out.println("Repository: " + s.getName() + " Contribotors: " + contributors.size());
 		    }    
@@ -327,11 +316,15 @@ public class Main {
 		SearchRepository repository = new SearchRepository(owner, name);
 		System.out.println("Repository name : " + repository.getName());
 		CommitService commitService = new CommitService();
+		
 		List<RepositoryCommit> repositoryCommits = commitService.getCommits(repository);
 		System.out.println("Commit size = " + repositoryCommits.size());
 		
 		// Keep commit details.
 		LinkedList<RepositoryCommitInfo> repositoryCommitInfoList = new LinkedList<RepositoryCommitInfo>();
+		
+		// UserLogin => Location
+		HashMap<String, String> contributorLocations = new HashMap<String, String>();
 		
 		//DataService dataService = new DataService();
 		//Blob blob = dataService.getBlob(repository, "250d0fccda2e81417160aaba2485f58436763a6e");
@@ -340,7 +333,6 @@ public class Main {
 		// Loop every commit.
 		//
 		
-		int i = 1;
 		for(RepositoryCommit repositoryCommit : repositoryCommits)
 		{
 			//
@@ -355,29 +347,57 @@ public class Main {
 			// filter message keywords
 			//if(repositoryCommit.getCommit().getMessage().matches("^[F|f]ix[\\s\\S]*|[\\s\\S]*[I|i]ssue[\\s\\S]*"))
 			//if(repositoryCommit.getCommit().getMessage().matches("[\\s\\S]*[B|b]ug[\\s\\S]*"))
+			
+			// The length of message must be less than 140.
+			String message = "";
+			if(repositoryCommit.getCommit().getMessage().length()>140) 
+				message = repositoryCommit.getCommit().getMessage().substring(0,139);
+			else
+				message = repositoryCommit.getCommit().getMessage();
+			
+			repositoryCommitInfoList.add(
+				new RepositoryCommitInfo(message,
+										 repositoryCommit.getCommit().getAuthor().getName(),
+										 repositoryCommit.getCommit().getAuthor().getDate(),
+										 repositoryCommit.getUrl(),
+										 repositoryCommit.getSha()));
+			
+			// Filled the contributor locations into hash map.
+			if(repositoryCommit.getCommitter()!=null)
 			{
-				// The length of message must be less than 140.
-				String message = null;
-				if(repositoryCommit.getCommit().getMessage().length()>140) 
-					message = repositoryCommit.getCommit().getMessage().substring(0,139);
-				else
-					message = repositoryCommit.getCommit().getMessage();
-				
-				repositoryCommitInfoList.add(
-					new RepositoryCommitInfo(message,
-											 repositoryCommit.getCommit().getAuthor().getName(),
-											 repositoryCommit.getCommit().getAuthor().getDate(),
-											 repositoryCommit.getUrl(),
-											 repositoryCommit.getSha()));
+				if(!contributorLocations.containsKey(repositoryCommit.getCommitter().getLogin()))
+				{
+					UserService userService = new UserService();
+					User user = userService.getUser(repositoryCommit.getCommitter().getLogin());
+					contributorLocations.put(
+							repositoryCommit.getCommitter().getLogin(), 
+							user.getLocation());
+				}
 			}
 			
-			i++;
-			//if(i>10000)
-			//	break;
-		}
+			/*
+			//
+			// get a CommitFile list
+			//
+			List<CommitFile> commitFiles = repositoryCommit.getFiles();
+			
+			RepositoryCommit rc = commitService.getCommit(repository, repositoryCommit.getSha());
+			
+			if(commitFiles!=null)
+			{
+				for(CommitFile cf : commitFiles)
+				{
+					System.out.println(cf.getFilename());
+				}
+			}
+			
+			DataService dataService = new DataService();
+			*/
+			
+		}// End of for
 		
 		//
-		// Classify the commit messages.
+		// Filter the commit messages.
 		//
 		
 		HashMap<String, Integer> messageTypes = new HashMap<String, Integer>();
@@ -389,10 +409,9 @@ public class Main {
 		
 		//HashMap<String, Integer> messageTypes2 = new HashMap<String, Integer>();
 		
-		// Key keeps contributor name, 
-		// Value keeps the number of different message types.[0:Add, 1:Update, 2:Fix, 3:Remove, 4:Merge]
+		// Key => contributor name, 
+		// Value => the number of different message types.[0:Add, 1:Update, 2:Fix, 3:Remove, 4:Merge]
 		HashMap<String, int[]> contributorMessages = new HashMap<String, int[]>();
-		
 		
 		for(RepositoryCommitInfo rci : repositoryCommitInfoList)
 		{
@@ -510,7 +529,11 @@ public class Main {
 				messageTypes2.put(messageFirstWord, 1);
 			*/
 		}
-		/*
+		
+		//
+		// Output
+		//
+		
 		for (Map.Entry<String, Integer> entry : messageTypes.entrySet()) 
 		{
 	        String key = entry.getKey();
@@ -518,34 +541,39 @@ public class Main {
 	        
 	        System.out.println("Message type: " + key + " number: " + value);
 		}
-		*/
-		
-		//
-		// Output the number of different messages.
-		//
-		
-		System.out.println(messageTypes.get("Add"));
-		System.out.println(messageTypes.get("Update"));
-		System.out.println(messageTypes.get("Fix"));
-		System.out.println(messageTypes.get("Remove"));
-		System.out.println(messageTypes.get("Merge"));
 		
 		//
 		// Print contributor information.
 		//
 		
+		System.out.println("contributor commits.");
 		for (Map.Entry<String, int[]> entry : contributorMessages.entrySet()) 
 		{
 	        String key = entry.getKey();
 	        int[] value = entry.getValue();
-	        System.out.println("Contributor name: " + key);
-	       
-	        System.out.println("Add: " + value[0]);
-	        System.out.println("Update: " + value[1]);
-	        System.out.println("Fix: " + value[2]);
-	        System.out.println("Remove: " + value[3]);
-	        System.out.println("Merge: " + value[4]);
+	        int sum = 0;
+	        for(int index=0; index<value.length; index++)
+	        	sum+=value[index];
+	        if(sum>5)
+	        {
+	        	System.out.println("Contributor name: " + key);
+	        	System.out.println(value[0] + "   " + value[2] + "   " + (value[1]+value[3]+value[4]) + "   ");
+	        	System.out.print(value[3]+"   ");
+	        	System.out.println(value[4]);
+	        }
 		}
+		
+		//
+		// Output contributor locations.
+		//
+		/*
+		System.out.println("contributor locations.");
+		for(Map.Entry<String, String> entry : contributorLocations.entrySet())
+		{
+			//System.out.println("Author Login: "+ entry.getKey() + ". Location: " + entry.getValue());
+			System.out.print("\"" + entry.getValue() + "\"," );
+		}
+		*/
 		
 		/*
 		for (Map.Entry<String, Integer> entry : messageTypes2.entrySet()) 
@@ -568,14 +596,14 @@ public class Main {
 		//
 		// Write commit info into a file.
 		//
-
+		/*
 		BufferedWriter out = new BufferedWriter(
 			new FileWriter(fileName));
 		for(RepositoryCommitInfo rci : repositoryCommitInfoList)
 		{
 			out.write(rci.getMessage());
 			out.newLine();
-			/*
+			
 			out.write(rci.getAuthor());
 			out.newLine();
 			out.write(rci.getDate().toString());
@@ -586,9 +614,10 @@ public class Main {
 			out.newLine();
 			//out.write("----------------------------------------------------------");
 			//out.newLine();
-			*/
+			
 		}
-		out.close();	
+		out.close();
+		*/
 	}
 	
 	//
@@ -745,22 +774,85 @@ public class Main {
 	    //PrintCommitNumberForContributors("torvalds", "linux");    
 	    
 	    //
-	    // Commit message behaviors.
+	    // Commit message behavior.
 	    //
+	    
+	    //
+	    // Java 
+	    //
+	    
+	    //PrintRepositoryCommitDetails("apache", "cassandra", 
+	    //	"/Users/boyu2011/stevens/cs581/project/github-repos/cassandra-repo-commits-log.txt");
+	    
+	    //PrintRepositoryCommitDetails("facebook", "facebook-android-sdk", 
+	    //	"/Users/boyu2011/stevens/cs581/project/github-repos/androidsdk-repo-commits-log.txt");
+	    
+	    
+	    //PrintRepositoryCommitDetails("KentBeck", "junit", 
+		//    "/Users/boyu2011/stevens/cs581/project/github-repos/hadoopcommon-repo-commits-log.txt");
+	    
+	    //PrintRepositoryCommitDetails("nathanmarz", "storm", 
+		//	    "/Users/boyu2011/stevens/cs581/project/github-repos/storm-repo-commits-log.txt");
+	     
+	    //PrintRepositoryCommitDetails("elasticsearch", "elasticsearch", 
+		//	    "/Users/boyu2011/stevens/cs581/project/github-repos/elasticsearch-repo-commits-log.txt");
+
+	    //PrintRepositoryCommitDetails("joyent", "node", 
+		//	    "/Users/boyu2011/stevens/cs581/project/github-repos/node-repo-commits-log.txt");
+	    
+	    //PrintRepositoryCommitDetails("cakephp", "cakephp", 
+		//	    "/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+	    
+	    //
+	    // PHP
+	    //
+	    
+	    /*
+	    PrintRepositoryCommitDetails("symfony", "symfony", 
+		    "/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+	    
+	    PrintRepositoryCommitDetails("EllisLab", "CodeIgniter", 
+		    "/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+	    
+	    PrintRepositoryCommitDetails("zendframework", "zf2", 
+			    "/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+
+	    PrintRepositoryCommitDetails("sebastianbergmann", "phpunit", 
+			    "/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+	    
+	    PrintRepositoryCommitDetails("codeguy", "Slim", 
+	  		"/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+	    
+	    PrintRepositoryCommitDetails("avalanche123", "Imagine", 
+		  	"/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+	    
+	    PrintRepositoryCommitDetails("fuel", "fuel", 
+		  	"/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+	     
+	    PrintRepositoryCommitDetails("symfony", "symfony-standard", 
+	    	"/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+
+	    PrintRepositoryCommitDetails("markjaquith", "WordPress", 
+		   	"/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+	    
+	    PrintRepositoryCommitDetails("symphonycms", "symphony-2", 
+		    "/Users/boyu2011/stevens/cs581/project/github-repos/cakephp-repo-commits-log.txt");
+	    */
 	    
 	    //
 	    // Top10 Popular forked repositories.
 	    //
+	    
 	    /*
-	    PrintRepositoryCommitDetails("mxcl", "homebrew", 
-	  		"/Users/boyu2011/stevens/cs581/project/github-repos/homebrew-repo-commits-log.txt");
-	  	    
 	    PrintRepositoryCommitDetails("rails", "rails", 
 		    "/Users/boyu2011/stevens/cs581/project/github-repos/rails-repo-commits-log.txt");
-	
+	    
+	    PrintRepositoryCommitDetails("mxcl", "homebrew", 
+	  		"/Users/boyu2011/stevens/cs581/project/github-repos/homebrew-repo-commits-log.txt");
+	  	   
 	    PrintRepositoryCommitDetails("twitter", "bootstrap", 
 		  	"/Users/boyu2011/stevens/cs581/project/github-repos/bootstrap-repo-commits-log.txt");
-
+	    
 	    PrintRepositoryCommitDetails("h5bp", "html5-boilerplate", 
 	    	"/Users/boyu2011/stevens/cs581/project/github-repos/html5-boilerplate-repo-commits-log.txt");
 		
@@ -778,8 +870,7 @@ public class Main {
 	    
 	    PrintRepositoryCommitDetails("jquery", "jquery-ui", 
 		    "/Users/boyu2011/stevens/cs581/project/github-repos/jquery-ui-repo-commits-log.txt");
-	    
-	    
+	       
 	    PrintRepositoryCommitDetails("git", "git", 
 			    "/Users/boyu2011/stevens/cs581/project/github-repos/git-repo-commits-log.txt");
 	    
@@ -813,21 +904,19 @@ public class Main {
 		PrintRepositoryCommitDetails("mongodb", "mongo", 
 				"/Users/boyu2011/stevens/cs581/project/github-repos/mongo-repo-commits-log.txt");
 		*/
-		//PrintRepositoryCommitDetails("mirrors", "linux-2.6", 
-		//		"/Users/boyu2011/stevens/cs581/project/github-repos/linux26-repo-commits-log.txt");
 		
 	    //
 	    // Top 10 Watched repositories.
 	    //
+	    
+	    PrintRepositoryCommitDetails("rails", "rails", 
+			    "/Users/boyu2011/stevens/cs581/project/github-repos/rails-repo-commits-log.txt");
 	    /*
 	    PrintRepositoryCommitDetails("joyent", "node", 
 			    "/Users/boyu2011/stevens/cs581/project/github-repos/node-repo-commits-log.txt");
 	    
 	    PrintRepositoryCommitDetails("twitter", "bootstrap", 
 			  	"/Users/boyu2011/stevens/cs581/project/github-repos/bootstrap-repo-commits-log.txt");
-
-	    PrintRepositoryCommitDetails("rails", "rails", 
-		    "/Users/boyu2011/stevens/cs581/project/github-repos/rails-repo-commits-log.txt");
 	
 	    PrintRepositoryCommitDetails("jquery", "jquery", 
 			   	"/Users/boyu2011/stevens/cs581/project/github-repos/jquery-repo-commits-log.txt");
@@ -848,7 +937,6 @@ public class Main {
 		    "/Users/boyu2011/stevens/cs581/project/github-repos/devise-repo-commits-log.txt");
 	    */
 	    
-	    
 	    //PrintRepositoryCommitDetails("KentBeck", "junit", 
 	    //	"/Users/boyu2011/stevens/cs581/project/github-repos/junit-repo-commits-log.txt");
 	    
@@ -864,11 +952,11 @@ public class Main {
 	    //PrintRepositoryCommitDetails("postgres", "postgres", 
 		//    	"/Users/boyu2011/stevens/cs581/project/github-repos/postgres-repo-commits-log.txt");
 	    
-	    PrintRepositoryCommitDetails("boyu2011", "post_now", 
-	      	"/Users/boyu2011/stevens/cs581/project/github-repos/post_now-repo-commits-log.txt");
+	    //PrintRepositoryCommitDetails("boyu2011", "post_now", 
+	    //  	"/Users/boyu2011/stevens/cs581/project/github-repos/post_now-repo-commits-log.txt");
 	    
-	    PrintRepositoryCommitDetails("eclipse", "egit-github", 
-	      	"/Users/boyu2011/stevens/cs581/project/github-repos/egit-github-repo-commits-log.txt");
+	    //PrintRepositoryCommitDetails("eclipse", "egit-github", 
+	    //  	"/Users/boyu2011/stevens/cs581/project/github-repos/egit-github-repo-commits-log.txt");
 	    
 	    //PrintReposInfo(service2, languages);
 	    
@@ -880,6 +968,7 @@ public class Main {
 	    if(str.matches("^[A|a][D|d][D|d].*"))
 	    	System.out.println("match.");
 		*/
+	    
 	    System.out.println("Program end.");
 	}    
 }

@@ -3,30 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="src" path="/org.eclipse.egit.github.core"/>
-	<classpathentry kind="lib" path="/Users/boyu2011/stevens/cs581/project/github-java-api/org.eclipse.egit.github.core.shaded-1.1.2.jar" sourcepath="/Users/boyu2011/.m2/repository/com/github/github/org.eclipse.egit.github.core.shaded/1.1.2/org.eclipse.egit.github.core.shaded-1.1.2-sources.jar"/>
-	<classpathentry kind="lib" path="/Users/boyu2011/.m2/repository/org/apache/ant/ant/1.8.2/ant-1.8.2.jar">
-		<attributes>
-			<attribute name="maven.groupId" value="org.apache.ant"/>
-			<attribute name="maven.artifactId" value="ant"/>
-			<attribute name="maven.version" value="1.8.2"/>
-			<attribute name="maven.scope" value="compile"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/boyu2011/dev_tools/eclipse-modeling-indigo-maven/plugins/org.eclipse.text_3.5.101.r371_v20110810-0800.jar" sourcepath="/Users/boyu2011/dev_tools/eclipse-modeling-indigo-maven/plugins/org.eclipse.text.source_3.5.101.r371_v20110810-0800.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/Users/boyu2011/dev_tools/eclipse-modeling-indigo-maven/plugins/org.eclipse.platform.doc.isv_3.7.1.r371_20110831.jar!/reference/api"/>
-		</attributes>
-		<accessrules>
-			<accessrule kind="accessible" pattern="org/eclipse/jface/text/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/jface/text/link/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/jface/text/projection/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/jface/text/source/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/jface/text/templates/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/text/edits/*"/>
-			<accessrule kind="accessible" pattern="org/eclipse/text/undo/*"/>
-			<accessrule ignoreifbetter="true" kind="nonaccessible" pattern="**/*"/>
-		</accessrules>
-	</classpathentry>
+	<classpathentry kind="lib" path="/Users/boyu2011/stevens/cs581/project/egit-github-lib-code/egit-github/org.eclipse.egit.github.core/target/org.eclipse.egit.github.core-1.2.0-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
